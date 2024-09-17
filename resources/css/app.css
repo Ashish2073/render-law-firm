@@ -1,0 +1,39 @@
+/* resources/css/app.css */
+@import "flowbite";
+@import "node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.dark {
+  --bg-color: #1a202c; /* Dark mode background color */
+  --text-color: #cbd5e0; /* Dark mode text color */
+}
+
+body {
+  background-color: #ffffff; /* Light mode background color */
+  color: #1a202c; /* Light mode text color */
+}
+
+.dark body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Additional styling for light-blue/white theme */
+.theme-light-blue {
+  --primary-color: #3b82f6; /* Light blue primary color */
+  --secondary-color: #ffffff; /* White secondary color */
+}
+
+.theme-light-blue body {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.dark.theme-light-blue body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
