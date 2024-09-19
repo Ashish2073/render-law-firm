@@ -1,14 +1,12 @@
-<div class="modal-dialog" role="document" style="max-width:950px;overflow-x: auto; overflow-y: auto; max-height: 1000px;">
+<div class="modal-dialog" role="document" style="max-width:950px;overflow-x: auto; overflow-y: auto;">
 
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="rolePermissionModalLabel">Update Lawyer Profile</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <div class="modal-body" style="">
+        <div class="modal-body">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
@@ -29,7 +27,7 @@
 
                                         <div class="form-group col-md-6">
                                             <label>Experience(Years)</label>
-                                            <input type="number" class="form-control" id="experience"
+                                            <input type="numEditber" class="form-control" id="experience"
                                                 value="{{ $data->experience }}" name="experience">
                                             <span class="text-danger small" id="experience_edit_error"></span>
                                         </div>
@@ -38,7 +36,7 @@
                                         <div class="form-group col-md-6">
                                             <div class="form-group">
                                                 <label>Email</label>
-                                                <input type="email" class="form-control" id="email"
+                                                <input type="mail" class="form-control" id="email"
                                                     value="{{ $data->email }}" name="email">
                                                 <span class="text-danger small" id="email_edit_error"></span>
                                             </div>
@@ -648,6 +646,14 @@
 
                         }
                     }
+                }
+                if (xhr.status === 403) {
+                    $("#editlawyerformid").modal('hide');
+                    let errorMessage = xhr.responseJSON.errorpermissionmessage ||
+                        'You do not have permission to perform this action.';
+
+                    toastr.error(errorMessage);
+
                 }
             }
         });

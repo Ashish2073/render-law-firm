@@ -1,13 +1,11 @@
 <div id="addlawyerformid" class="modal fade" tabindex="-1" role="dialog">
 
-    <div class="modal-dialog" role="document"
-        style="max-width:950px;overflow-x: auto; overflow-y: auto; max-height: 1000px;">
+    <div class="modal-dialog" role="document" style="max-width:1090px;overflow-x: auto;">
+
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="rolePermissionModalLabel">Add Lawyer</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -111,36 +109,38 @@
                                     @include('components.image')
 
 
+                                    <div class="card">
+                                        <div class="card-body" id="socialmediacardbody">
+                                            <button type="button" class="btn btn-primary btn-sm top-right-button"
+                                                onclick="addMoreSocialMediaField()">+</button>
+                                            <div class="form-row d-flex">
+                                                <div class="form-group col-md-5">
+                                                    <label for="socialMediaType">Please Select Social Media
+                                                    </label>
+                                                    <select id="socialMediaType" name="socialmedianame[]"
+                                                        class="form-control socialMediaType">
+                                                        <option value="">Choose...</option>
+                                                        <option value="1">Facebook</option>
+                                                        <option value="2">Twitter</option>
+                                                        <option value="3">Instagram</option>
+                                                        <option value="4">LinkedIn</option>
+                                                    </select>
+                                                    <span class="text-danger small socialmedianame_error"
+                                                        id="socialmedianame.0_error"></span>
+                                                </div>
+                                                <div class="form-group col-md-5">
+                                                    <label for="socialMediaUrl">Enter Social Media Link</label>
+                                                    <input type="url" name="socialmediaurl[]"
+                                                        class="form-control" id="socialMediaUrl"
+                                                        placeholder="Enter URL">
+                                                    <span class="text-danger small socialmediaurl_error"
+                                                        id="socialmediaurl.0_error"></span>
+                                                </div>
+                                            </div>
 
-                                    <div class="card card-body" id="socialmediacardbody">
-                                        <button type="button" class="btn btn-primary btn-sm top-right-button"
-                                            onclick="addMoreSocialMediaField()">+</button>
-                                        <div class="form-row d-flex">
-                                            <div class="form-group col-md-5">
-                                                <label for="socialMediaType">Please Select Social Media
-                                                </label>
-                                                <select id="socialMediaType" name="socialmedianame[]"
-                                                    class="form-control socialMediaType">
-                                                    <option value="">Choose...</option>
-                                                    <option value="1">Facebook</option>
-                                                    <option value="2">Twitter</option>
-                                                    <option value="3">Instagram</option>
-                                                    <option value="4">LinkedIn</option>
-                                                </select>
-                                                <span class="text-danger small socialmedianame_error"
-                                                    id="socialmedianame.0_error"></span>
-                                            </div>
-                                            <div class="form-group col-md-5">
-                                                <label for="socialMediaUrl">Enter Social Media Link</label>
-                                                <input type="url" name="socialmediaurl[]" class="form-control"
-                                                    id="socialMediaUrl" placeholder="Enter URL">
-                                                <span class="text-danger small socialmediaurl_error"
-                                                    id="socialmediaurl.0_error"></span>
-                                            </div>
+
+
                                         </div>
-
-
-
                                     </div>
 
 

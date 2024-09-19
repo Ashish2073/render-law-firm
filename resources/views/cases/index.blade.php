@@ -81,11 +81,11 @@
 
 
         /*
-                        col[data-dt-column="2"] {
-                            width: 302.453px !important;
-                         
+                                                                                                                                                                                                                                                                                                                                                                                                    col[data-dt-column="2"] {
+                                                                                                                                                                                                                                                                                                                                                                                                        width: 302.453px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                     
 
-                        } */
+                                                                                                                                                                                                                                                                                                                                                                                                    } */
         col[data-dt-column="3"] {
             width: 250.453px !important;
         }
@@ -100,9 +100,11 @@
     </style>
 
 
+    @include('components.loader')
     @include('components.sidemodal')
 
     @include('components.status')
+    @include('components.multistepform')
 
     @include('components.imageslider', [
         'modal_body' => 'image-slider-container-body',
@@ -131,8 +133,10 @@
     </div>
 
     <div class="page-header">
-        <button type="button" class="btn btn-primary">Add Cases</button>
+        <button type="button" onclick="openCustomerCasesForm()" class="btn btn-primary">Add Cases</button>
     </div>
+
+
 
     <div class="row">
         <div class="col-md-12">
@@ -186,8 +190,9 @@
     <script>
         /////////////////////////////////Image Crousel//////////
         let slideIndex = 1;
-        function openImageModal(imageList,fileName) {
-           
+
+        function openImageModal(imageList, fileName) {
+
             let imageArraylength = imageList.length;
 
             let sliderHtml = `<h2 style="text-align:center">Case File Document</h2><div class="container">`;
@@ -217,7 +222,7 @@
 
             sliderHtml += bigImageContainer + previousNextButton + imageSpanTagName + smallImageContainer + `</div>`;
 
-          
+
 
             $("#image-slider-container-body").html(sliderHtml);
 
@@ -225,7 +230,7 @@
             $("#image-slider-modal").modal('show');
 
             // Initialize the slideshow
-        
+
             showSlides(slideIndex);
         }
 
@@ -923,6 +928,211 @@
                 }
             })
         });
+
+
+        var routes = {
+            countryList: "{{ route('admin.country.list') }}",
+            stateList: "{{ route('admin.state.list') }}",
+            cityList: "{{ route('admin.city.list') }}",
+            customerList: "{{ route('admin.customer-list') }}"
+        };
+
+
+        function initializeSelect2(selector, url, parentId = null, placeholder, formatResult, formatSelection, serchTerm =
+            '') {
+
+            $(`${selector}`).val(null).trigger("change");
+
+            $(selector).select2({
+                placeholder: placeholder,
+                allowClear: true,
+                dropdownParent: $('#add-customer-cases'),
+                width: 'resolve',
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            search: params.term || serchTerm,
+                            page: params.page || 1,
+                            parent_id: parentId
+
+                        };
+                    },
+                    processResults: function(data, params) {
+
+
+                        params.page = params.page || 1;
+
+                        return {
+                            results: $.map(data.results, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.profile_url ?
+                                        `<td class="d-flex align-items-center">
+                                        <img src="${item.profile_url}" width="20" alt="${item.name}" height="20" class="rounded-circle me-2">
+                                        ${item.name}
+                                     </td>` : item.name
+                                };
+                            }),
+                            pagination: {
+                                more: data.hasMore
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 0,
+                minimumResultsForSearch: 0,
+                templateResult: formatResult,
+                templateSelection: formatSelection,
+                escapeMarkup: function(markup) {
+                    return markup;
+
+                }
+            });
+        }
+
+
+        function formatCountry(country) {
+            return country.text ? `<div class="country-result">${country.text}</div>` : country.text;
+        }
+
+        function formatCountrySelection(country) {
+            return country.text || country.id;
+        }
+
+        function formatState(state) {
+            return state.text ? `<div class="state-result">${state.text}</div>` : state.text;
+        }
+
+        function formatStateSelection(state) {
+            return state.text || state.id;
+        }
+
+        function formatCity(city) {
+            return city.text ? `<div class="city-result">${city.text}</div>` : city.text;
+        }
+
+        function formatCitySelection(city) {
+            return city.text || city.id;
+        }
+
+
+        function formatCustomer(customer) {
+            if (customer.loading) {
+                return customer.text;
+            }
+            return `<div>${customer.text}</div>`;
+        }
+
+        // Optional: Format the selected lawyer in the box
+        function formatCustomerSelection(customer) {
+            return customer.text || customer.id;
+        }
+
+
+
+        function openCustomerCasesForm() {
+            // Show modal
+            $("#add-customer-cases").modal('show');
+
+            // Initialize country select
+            // initializeSelect2('#countrySelect', routes.countryList, null, 'Select a Country', formatCountry,
+            //     formatCountrySelection);
+
+            initializeSelect2('#customerSelect', routes.customerList, null, 'Select a Customer', formatCustomer,
+                formatCustomerSelection);
+            initializeSelect2('#stateSelect', routes.stateList, 233, 'Select a State', formatState,
+                formatStateSelection);
+
+            // $('#countrySelect').on('change', function() {
+            //     var countryId = $(this).val();
+
+            //     if (countryId) {
+            //         $("#stateSelect").val(null).trigger("change");
+            //         $("#citySelect").val(null).trigger("change");
+            //         initializeSelect2('#stateSelect', routes.stateList, countryId, 'Select a State', formatState,
+            //             formatStateSelection);
+
+
+            //     }
+            // });
+
+
+            $('#stateSelect').on('change', function() {
+                var stateId = $(this).val();
+                if (stateId) {
+                    $("#citySelect").val(null).trigger("change");
+                    initializeSelect2('#citySelect', routes.cityList, stateId, 'Select a City', formatCity,
+                        formatCitySelection);
+                }
+            });
+
+
+
+        }
+
+
+
+
+
+
+        function getCountryStateCity(zipcode) {
+            if (zipcode.trim() !== '' && zipcode.trim().length > 4) {
+                console.log('Searching for State and City using Zipcode:', zipcode);
+
+                $.ajax({
+                    url: "{{ route('admin.zipcodeinfo') }}",
+                    method: 'POST',
+                    data: {
+                        zipcode: zipcode,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        $("#spinner-div").show();
+                    },
+                    success: function(response) {
+                        if (response.status) {
+                            const result = response.result[0];
+                            const state = result.state;
+                            const city = result.postalLocation;
+                            const stateId = result.state_id;
+                            const cityId = result.city_id;
+
+                            console.log('State from API:', state);
+                            console.log('City from API:', city);
+
+
+
+                            var newStateOption = new Option(state, stateId, true, true);
+                            $('#stateSelect').append(newStateOption).trigger('change');
+
+                            var newCityOption = new Option(city, cityId, true, true);
+                            $('#citySelect').append(newCityOption).trigger('change');
+
+
+
+
+
+                        } else {
+                            console.log('Error: No valid data found');
+                        }
+                        $("#spinner-div").hide();
+                    },
+                    error: function(xhr, status, error) {
+                        $("#spinner-div").hide();
+                        console.log('Error occurred while fetching state and city:', error);
+                    }
+                });
+            }
+        }
+
+
+        function saveCustomeCaseUserBasicDeatil() {
+
+        }
     </script>
 
 @endsection

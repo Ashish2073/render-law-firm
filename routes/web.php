@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CaseController;
 use App\Http\Controllers\Admin\CaseMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Auth\AuthController;
+use App\Http\Controllers\Admin\CountryStateCityController;
 
 // Route::get('/', function () {
 //     return ['Laravel' => app()->version()];
@@ -71,8 +72,14 @@ Route::group([
     'middleware' => ['multipleauth'],
     'as' => 'admin.'
 ], function () {
+
     Route::get('/logout', 'Auth\AuthController@logout')->name('logout');
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
+
+    Route::get('/country-list', [CountryStateCityController::class, 'countrylist'])->name('country.list');
+    Route::get('/state-list', [CountryStateCityController::class, 'statelist'])->name('state.list');
+    Route::get('/city-list', [CountryStateCityController::class, 'citylist'])->name('city.list');
+    Route::post('/get-zipcode-info', [CountryStateCityController::class, 'getZipcodeInfo'])->name('zipcodeinfo');
 
     Route::get('/weekly-enrolled-customer', [DashboardController::class, 'weeklyEnrollementCustomer'])->name('weekly.enrolled.customer');
 
@@ -88,7 +95,7 @@ Route::group([
     Route::get('/practice-areas/search', 'PracticeAreaController@search')->name('practice-areas.search');
 
     // lawyer routes
-    Route::get('/lawyers', 'LawyerController@index')->name('lawyers');
+    Route::get('/lawyers', 'LawyerController@index')->name('lawyers')->middleware('permission:lawyer_view');
     Route::get('/lawyers/create', 'LawyerController@create')->name('lawyers.create');
     Route::post('/lawyer-status-update', [LawyerController::class, 'lawyerStatusUpdate'])->name('lawyer.statusupdate');
 
@@ -106,8 +113,6 @@ Route::group([
 
     Route::post('/lawyer/image/update', [LawyerController::class, 'lawyerImageUpdate'])->name('lawyer.image.update');
 
-    Route::get('/get-feedbacks', [LawyerController::class, 'getFeedbacks'])->name('get-feedbacks');
-
 
     Route::post('/lawyer-proficience-save', [LawyerController::class, 'lawyerProficienceSave'])->name('lawyer.proficience-save');
 
@@ -116,24 +121,26 @@ Route::group([
     Route::post('/lawyer-proficience-edit', [LawyerController::class, 'lawyerProficienceEdit'])->name('lawyer.proficience-edit');
 
     Route::get('/lawyer-list', [LawyerController::class, 'lawyerlist'])->name('lawyer.list');
-
+    Route::get('/get-feedbacks', [LawyerController::class, 'getFeedbacks'])->name('get-feedbacks');
 
 
     Route::get('/lawyer/proficience', [LawyerController::class, 'proficienciesList'])->name('lawyers.proficience');
 
     Route::get('/lawyer/proficience', [LawyerController::class, 'proficienciesList'])->name('lawyers.proficience');
 
-    Route::get('/push-notification/show', [PushNotificationController::class, 'notificationShow'])->name('notification.show');
+    Route::get('/push-notification/show', [PushNotificationController::class, 'notificationShow'])->name('notification.show')->middleware('permission:push_notification_view');
 
     Route::post('/sendNotificaation', [PushNotificationController::class, 'sendNotificationAllUsers'])->name('notification.save');
 
-    Route::get('/customer-list', [CustomerController::class, 'customerList'])->middleware('permission:customers_view')->name('customer.detail');
+    Route::get('/customer-list', [CustomerController::class, 'customerList'])->name('customer.detail')->middleware('permission:customers_view');
 
     Route::post('/customer-save', [CustomerController::class, 'customerSave'])->name('customer.save');
 
+    Route::get('/customer-paginate-list', [CustomerController::class, 'customerPaginateList'])->name('customer-list');
+
     Route::post('/customer-status-update', [CustomerController::class, 'customerStatusUpdate'])->name('customer.statusupdate')->middleware('permission:customer_status_edit');
 
-    Route::get('/role-permission-list', [RolePermissionController::class, 'rolePermissionList'])->name('role-permission-list');
+    Route::get('/role-permission-list', [RolePermissionController::class, 'rolePermissionList'])->name('role-permission-list')->middleware('permission:roles_and_permissions_view');
 
     Route::post('/role-permission-save', [RolePermissionController::class, 'rolePermissionSave'])->name('role-permission-save');
 
@@ -151,7 +158,7 @@ Route::group([
 
     Route::get("/user-list", [UserController::class, "userList"])->name("user-list");
 
-    Route::post("/user-save", [UserController::class, "userSave"])->name("user-save");
+    Route::post("/user-save", [UserController::class, "userSave"])->middleware('permission:users_add')->name("user-save");
 
     Route::post('/user-status-update', [UserController::class, 'userStatusUpdate'])->name('user.statusupdate');
 
@@ -159,9 +166,9 @@ Route::group([
 
     Route::post('/user-update', [UserController::class, 'userUpdate'])->name('user-update');
 
-    Route::get('/welcome-message', [WelcomeMessageController::class, 'messageShow'])->name('welcome.message');
+    Route::get('/welcome-message', [WelcomeMessageController::class, 'messageShow'])->name('welcome.message')->middleware('permission:welcome_message_view');
 
-    Route::post('/welcome-message/save', [WelcomeMessageController::class, 'messageSave'])->name('welocome.message.save');
+    Route::post('/welcome-message/save', [WelcomeMessageController::class, 'messageSave'])->name('welocome.message.save')->middleware('permission:welcome_message_add');
 
     Route::post('/welcome-message/image-update', [WelcomeMessageController::class, 'messageImageUpdate'])->name('welocome.message.image.update');
 
@@ -187,20 +194,20 @@ Route::group([
 
     Route::post('/faq/feature/status', [FaqController::class, 'featureStatusUpdate'])->name('faq.category.status');
 
-    Route::get('/faq/question', [FaqController::class, 'faqQuestionShow'])->name('faq.question');
+    Route::get('/faq/question', [FaqController::class, 'faqQuestionShow'])->name('faq.question')->middleware('permission:frequently_asked_questions_view');
 
     Route::post('/text-image-upload', [FaqController::class, 'textareaimageupload'])->name('text.image.upload');
 
-    Route::post('/faq/save', [FaqController::class, 'faqSave'])->name('faq.save');
+    Route::post('/faq/save', [FaqController::class, 'faqSave'])->middleware('permission:frequently_asked_questions_add')->name('faq.save');
 
-    Route::post('faq/status/update', [FaqController::class, 'faqStatusChange'])->name('faq.status');
+    Route::post('faq/status/update', [FaqController::class, 'faqStatusChange'])->middleware('permission:frequently_asked_questions_status_change')->name('faq.status');
 
     Route::post('faq/updateCategory', [FaqController::class, 'updateCategory'])->name('faq.updateCategory');
     Route::post('faq/update/question', [FaqController::class, 'updateQuestion'])->name('faq.updateQuestion');
     Route::post('faq/update/answer', [FaqController::class, 'updateAnswer'])->name('faq.updateAnswer');
 
 
-    Route::get('cuatomer/cases', [CaseController::class, 'index'])->name('customer-cases');
+    Route::get('cuatomer/cases', [CaseController::class, 'index'])->name('customer-cases')->middleware('permission:cases_view');
     Route::post('lawyer/cases-assign', [CaseController::class, 'lawyerAssign'])->name('lawyer-cases-assign');
 
     Route::post('lawyer/cases-dissiociate', [CaseController::class, 'lawyerDissiociate'])->name('lawyer-dissiociate-assign');

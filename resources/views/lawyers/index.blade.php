@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Laywer')
+@section('title', 'Lawyer')
 
 @section('content')
 
@@ -534,6 +534,8 @@
 
 
         function openModalFeddBackReview(id, avgRating, count, ratngsRange) {
+            let lawyerId = id
+
             $("#spinner-div").show();
             $("#poor_rating").html(`(${ratngsRange.range_1_to_2})`);
             $("#average_rating").html(`(${ratngsRange.range_2_to_3})`);
@@ -544,10 +546,12 @@
             $("#customer_count").html(`Based on ${count} reviews`);
             $("#feedback-container").html(" ");
             $("#lawyer_feedback").modal('show');
+            $('#feedback-container').off('scroll');
             $('#feedback-container').on('scroll', function() {
                 let container = $(this);
                 if (container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 50) {
-                    loadFeedbacks(id);
+                    console.log("scrollbar");
+                    loadFeedbacks(lawyerId);
                 }
             });
 
@@ -606,7 +610,7 @@
 
 
             function loadFeedbacks(id) {
-
+                console.log("hjgjg", id);
                 if (isLoading || !hasMoreData) return;
 
                 isLoading = true;
@@ -652,7 +656,7 @@
             }
 
 
-            loadFeedbacks(id);
+            loadFeedbacks(lawyerId);
 
         }
 

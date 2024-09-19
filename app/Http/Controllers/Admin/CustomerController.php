@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 
-class CustomerController extends Controller 
+class CustomerController extends Controller
 {
 
     // public function __construct()
@@ -93,7 +93,7 @@ class CustomerController extends Controller
 
 
 
-#f16702;
+                #f16702;
 
                 ->rawColumns(['customer_image', 'status', 'verification_status'])
                 ->make(true);
@@ -124,7 +124,7 @@ class CustomerController extends Controller
     }
 
     public function customerSave(Request $request)
-    { 
+    {
 
         try {
 
@@ -143,7 +143,7 @@ class CustomerController extends Controller
             ], [
                 'password.regex' => 'The password must contain at least one special character (@$!%*?&#).',
             ]);
-            
+
 
             if ($validator->fails()) {
                 return response()->json([
@@ -152,7 +152,7 @@ class CustomerController extends Controller
                 ], 422);
             }
 
-            
+
 
             $customer = new Customer();
             $customer->name = $request->name;
@@ -176,7 +176,7 @@ class CustomerController extends Controller
             }
 
             $customer->save();
-            if($customer){
+            if ($customer) {
                 Mail::to($request->email)->send(new SocialMediaLoginCustomerCredentialMail($request->password, $request->email));
             }
 
@@ -196,4 +196,42 @@ class CustomerController extends Controller
 
 
     }
+
+
+    public function customerPaginateList(Request $request)
+    {
+        $search = $request->input('search');
+        $page = $request->input('page', 1);
+
+        $query = Customer::query()->where('status', '1');
+
+        if ($search) {
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $customers = $query->paginate(10, ['*'], 'page', $page);
+
+        // Map through the customersand add the profile image URL
+        $customersData = $customers->map(function ($customer) {
+            $profileUrl = isset($customer->profile_image) && $customer->profile_image
+                ? asset("customer_image/{$customer->profile_image}")
+                : asset("customer_image/defaultcustomer.jpg");
+
+            return [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'profile_url' => $profileUrl,
+                // Add other fields if needed
+            ];
+        });
+
+        return response()->json([
+            'results' => $customersData,
+            'hasMore' => $customers->hasMorePages()
+        ]);
+    }
+
+
+
+
 }
