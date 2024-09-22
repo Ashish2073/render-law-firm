@@ -81,11 +81,11 @@
 
 
         /*
-                                                                                                                                                                                                                                                                                                                                                                                                    col[data-dt-column="2"] {
-                                                                                                                                                                                                                                                                                                                                                                                                        width: 302.453px !important;
-                                                                                                                                                                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        col[data-dt-column="2"] {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            width: 302.453px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-                                                                                                                                                                                                                                                                                                                                                                                                    } */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        } */
         col[data-dt-column="3"] {
             width: 250.453px !important;
         }
@@ -186,7 +186,7 @@
 
 
 @section('page-script')
-
+    <script src="{{ asset('assets/js/create-file-list.js') }}"></script>
     <script>
         /////////////////////////////////Image Crousel//////////
         let slideIndex = 1;
@@ -527,7 +527,7 @@
                                         params.page = params.page || 1;
 
                                         return {
-                                            results: $.map(data.lawyers, function(
+                                            results: $.map(data.results, function(
                                                 lawyer) {
                                                 return {
                                                     id: lawyer.id,
@@ -846,7 +846,7 @@
                 },
                 success: function(response) {
                     if (response.lawyer) {
-                        console.log(response);
+
 
                         let casesId = response.id;
 
@@ -934,7 +934,8 @@
             countryList: "{{ route('admin.country.list') }}",
             stateList: "{{ route('admin.state.list') }}",
             cityList: "{{ route('admin.city.list') }}",
-            customerList: "{{ route('admin.customer-list') }}"
+            customerList: "{{ route('admin.customer-list') }}",
+            lawyerList: "{{ route('admin.lawyer.list') }}",
         };
 
 
@@ -962,6 +963,7 @@
                     },
                     processResults: function(data, params) {
 
+                        console.log(data);
 
                         params.page = params.page || 1;
 
@@ -1028,6 +1030,18 @@
         }
 
         // Optional: Format the selected lawyer in the box
+        function formatLawyerSelection(lawyer) {
+            return lawyer.text || lawyer.id;
+        }
+
+        function formatLawyer(lawyer) {
+            if (lawyer.loading) {
+                return lawyer.text;
+            }
+            return `<div>${lawyer.text}</div>`;
+        }
+
+        // Optional: Format the selected lawyer in the box
         function formatCustomerSelection(customer) {
             return customer.text || customer.id;
         }
@@ -1046,6 +1060,9 @@
                 formatCustomerSelection);
             initializeSelect2('#stateSelect', routes.stateList, 233, 'Select a State', formatState,
                 formatStateSelection);
+
+            initializeSelect2('#preferdAttroneySelect', routes.lawyerList, null, 'Select a prefred lawyer', formatLawyer,
+                formatLawyerSelection);
 
             // $('#countrySelect').on('change', function() {
             //     var countryId = $(this).val();
@@ -1130,9 +1147,72 @@
         }
 
 
-        function saveCustomeCaseUserBasicDeatil() {
+        function saveCustomerCaseUserBasicDetail(e) {
+            e.preventDefault();
 
-        }
+            let formData = new FormData($("#customer-case-user-basic-detail")[0]);
+
+            formData.append('_token', '{{ csrf_token() }}');
+
+            $.ajax({
+                url: "{{ route('admin.customer-case-user-bascic-detail') }}",
+                method: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                },
+                beforeSend: function() {
+                    $("#spinner-div").show();
+                },
+                success: function(response) {
+                    $("#spinner-div").hide();
+                    toastr.success("Case user basic detail save successfully!!");
+                    customerCaseDetailsDataTable();
+
+                },
+                error: function(xhr, status, error) {
+
+                    $("#spinner-div").hide();
+                    if (xhr.status == 422) {
+                        console.log(xhr.responseJSON);
+                        var errorMessage = xhr.responseJSON.errors;
+                        displayStep(1)
+                        toastr.error("Something went wrong");
+                        for (fieldName in errorMessage) {
+                            if (errorMessage.hasOwnProperty(fieldName)) {
+
+                                $(`[id="${fieldName}_error"]`).html(
+                                    errorMessage[fieldName][
+                                        0
+                                    ]);
+
+                            }
+                        }
+                    }
+
+                    if (xhr.status === 403) {
+
+                        let errorMessage = xhr.responseJSON.errorpermissionmessage ||
+                            'You do not have permission to perform this action.';
+
+                        toastr.error(errorMessage);
+
+                    }
+
+
+
+
+                }
+            });
+
+
+
+
+        };
     </script>
 
 @endsection

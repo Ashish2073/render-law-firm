@@ -30,13 +30,25 @@ class Customer extends SanctumPersonalAccessToken
 
     public function cases()
     {
-        return $this->belongsToMany(CustomerCase::class, 'customers'); 
+        return $this->belongsToMany(CustomerCase::class, 'customers');
     }
 
 
-    public function fcm_token(){
-        return $this->hasMany(CustomerFcmToken::class,'customer_id','id');
+    public function fcm_token()
+    {
+        return $this->hasMany(CustomerFcmToken::class, 'customer_id', 'id');
     }
+
+
+
+
+    public function getProfileImageAttribute($value)
+    {
+
+        return $value ? asset("customer_image/{$value}")
+            : asset("customer_image/defaultcustomer.jpg");
+    }
+
 
 
 

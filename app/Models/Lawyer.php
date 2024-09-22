@@ -84,6 +84,13 @@ class Lawyer extends Authenticatable
     }
 
 
+    public function getProfileImageAttribute($value)
+    {
+
+        return $value ? asset("lawyer/images/{$value}")
+            : asset("customer_image/defaultcustomer.jpg");
+    }
+
     protected $hidden = [
         'password',
         'remember_token',

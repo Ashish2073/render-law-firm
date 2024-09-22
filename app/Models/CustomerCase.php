@@ -10,7 +10,7 @@ class CustomerCase extends Model
 {
     use HasFactory;
 
-    protected $table="cases";
+    protected $table = "cases";
 
 
     // public function sendAssignedLawyerToCustomerCases($customer){
@@ -18,8 +18,15 @@ class CustomerCase extends Model
     // }
 
 
-    public function caseFiles(){
-        return $this->hasMany(CaseFile::class,'case_id','id');
+    public function caseFiles()
+    {
+        return $this->hasMany(CaseFile::class, 'case_id', 'id');
+    }
+
+
+    public function getFileNameAttribute($value)
+    {
+        return $value ? asset('cases_file/' . $value) : 'N/A';
     }
 
 

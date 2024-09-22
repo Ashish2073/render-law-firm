@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use App\Repositories\CustomerRepository;
 use DataTables;
 use App\Mail\SocialMediaLoginCustomerCredentialMail;
 use Illuminate\Support\Facades\Mail;
@@ -16,6 +17,15 @@ use App\Models\Customer;
 class CustomerController extends Controller
 {
 
+    protected $customerRepository;
+
+
+    public function __construct(CustomerRepository $customerRepository)
+    {
+        // Inject the CustomerRepository
+        $this->customerRepository = $customerRepository;
+
+    }
     // public function __construct()
     // {
 
@@ -44,11 +54,8 @@ class CustomerController extends Controller
             return datatables()->of($customers)
                 ->addIndexColumn()
                 ->addColumn('customer_image', function ($row) {
-                    if (isset($row->profile_image)) {
-                        $url = asset("customer_image/{$row->profile_image}");
-                    } else {
-                        $url = asset("customer_image/defaultcustomer.jpg");
-                    }
+
+                    $url = $row->profile_image;
 
 
                     $customerimg = "<img src={$url} width='30'  height='50' />";
@@ -200,35 +207,9 @@ class CustomerController extends Controller
 
     public function customerPaginateList(Request $request)
     {
-        $search = $request->input('search');
-        $page = $request->input('page', 1);
 
-        $query = Customer::query()->where('status', '1');
+        return $this->customerRepository->selectOptionDatalist($request);
 
-        if ($search) {
-            $query->where('name', 'LIKE', '%' . $search . '%');
-        }
-
-        $customers = $query->paginate(10, ['*'], 'page', $page);
-
-        // Map through the customersand add the profile image URL
-        $customersData = $customers->map(function ($customer) {
-            $profileUrl = isset($customer->profile_image) && $customer->profile_image
-                ? asset("customer_image/{$customer->profile_image}")
-                : asset("customer_image/defaultcustomer.jpg");
-
-            return [
-                'id' => $customer->id,
-                'name' => $customer->name,
-                'profile_url' => $profileUrl,
-                // Add other fields if needed
-            ];
-        });
-
-        return response()->json([
-            'results' => $customersData,
-            'hasMore' => $customers->hasMorePages()
-        ]);
     }
 
 

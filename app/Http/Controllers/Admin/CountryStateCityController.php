@@ -80,16 +80,68 @@ class CountryStateCityController extends Controller
 
             $responseBody = json_decode($response->getBody(), true);
 
-            $countryCode = $responseBody['result'][0]['country'];
-            $stateName = $responseBody['result'][0]['state'];
-            $cityName = $responseBody['result'][0]['postalLocation'];
+            $cityExist = City::where('zip_code', $zipcode)->first();
 
-            $state = State::where('name', $stateName)->first();
+            if ($cityExist) {
 
-            $city = City::where('name', $cityName)->first();
+                $state = State::find($cityExist->state_id);
+                $responseBody['result'][0]['state'] = $state->name;
+                $responseBody['result'][0]['state_id'] = $state->id;
+                $responseBody['result'][0]['postalLocation'] = $cityExist->name;
+                $responseBody['result'][0]['city_id'] = $cityExist->id;
 
-            $responseBody['result'][0]['state_id'] = $state->id;
-            $responseBody['result'][0]['city_id'] = $city->id;
+
+
+            } else {
+                if (!empty($responseBody['result']) && isset($responseBody['result'])) {
+                    $countryCode = $responseBody['result'][0]['country'];
+                    $stateName = $responseBody['result'][0]['state'];
+                    $cityName = $responseBody['result'][0]['postalLocation'];
+
+                    $state = State::where('name', $stateName)->first();
+
+                    $city = City::where('name', $cityName)->first();
+
+                    if (!$state) {
+                        $newState = new State();
+                        $newState->name = $stateName;
+                        $newState->country_id = 233;
+                        $newState->save();
+                    }
+
+
+
+                    if ($city) {
+                        $city->zip_code = $zipcode;
+                        $city->save();
+                        $responseBody['result'][0]['state_id'] = $state->id;
+                        $responseBody['result'][0]['city_id'] = $city->id;
+                    } else {
+                        $newCity = new City();
+                        $newCity->name = $cityName;
+                        $newCity->state_id = $state->id ?? $newState->id;
+                        $newCity->country_id = 233;
+                        $newCity->save();
+
+                        if ($newCity) {
+                            $responseBody['result'][0]['state_id'] = $state->id ?? $newState->id;
+                            $responseBody['result'][0]['city_id'] = $newCity->id;
+
+                        }
+
+                    }
+
+
+
+
+
+                }
+
+
+            }
+
+
+
 
 
 

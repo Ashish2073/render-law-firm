@@ -82,47 +82,90 @@ class BaseRepository implements RepositoryInterface
             ->whereRaw('YEARWEEK(created_at, 1) = YEARWEEK(NOW(), 1) - ?', [$weekNumber])
             ->orderBy('year_week', 'desc')
             ->count();
-    }    
+    }
     public function weeklyEnrollementData(Request $request)
     {
         $start = $request->query('start');
         $end = $request->query('end');
-        
+
         $labels = [];
         $data = [];
-        
+
         $startDate = Carbon::now()->startOfWeek();
-        
+
         $weekCounter = 4; // Start with Week 4
         $previousMonth = $startDate->copy()->subWeeks($start)->format('m'); // Get the month of the start date
-        
+
         for ($i = $start; $i <= $end; $i++) {
             $date = $startDate->copy()->subWeeks($i);
             $currentMonth = $date->format('m');
-            
+
             if ($currentMonth != $previousMonth) {
                 $weekCounter = 4; // Reset week counter to 4 if the month changes
                 $previousMonth = $currentMonth;
             }
-    
+
             $labels[] = "Week " . ($weekCounter) . " (" . $date->format('d/m/Y') . ")";
-            
-            $data[] = $this->getWeeklyEnrolled($i, $this->model::class); 
-            
+
+            $data[] = $this->getWeeklyEnrolled($i, $this->model::class);
+
             $weekCounter--; // Decrement the week counter for each loop iteration
-            
+
             if ($weekCounter < 1) {
                 $weekCounter = 4; // Reset to Week 4 if it goes below 1
             }
         }
-    
+
         return response()->json([
             'labels' => $labels,
             'data' => $data
         ]);
     }
-    
-    
+
+
+
+    public function selectOptionDatalist(Request $request)
+    {
+        $search = $request->input('search');
+        $page = $request->input('page', 1);
+
+
+        $query = $this->model::class::query();
+
+        if ($search) {
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $data = $query->paginate(10, ['*'], 'page', $page);
+
+
+
+
+        $modifiedData = $data->map(function ($item) {
+            $profileUrl = $item->profile_image ?? "";
+
+
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'profile_url' => $profileUrl,
+
+            ];
+        });
+
+
+
+        return response()->json([
+            'results' => $modifiedData,
+            'hasMore' => $data->hasMorePages()
+        ]);
+    }
+
+
+
+
+
+
 
 
 

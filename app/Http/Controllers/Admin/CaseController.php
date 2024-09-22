@@ -13,9 +13,21 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
+use App\Services\CaseService;
+
 
 class CaseController extends Controller
 {
+    protected $caseService;
+    protected $proficienceRepository;
+
+    public function __construct(CaseService $caseService, ProficienceRepository $proficienceRepository)
+    {
+        $this->caseService = $caseService;
+        $this->proficienceRepository = $proficienceRepository;
+    }
+
+
 
     public function index(Request $request)
     {
@@ -23,7 +35,7 @@ class CaseController extends Controller
         if ($request->ajax()) {
 
             if ((session('permissionerror'))) {
-                return response()->json(['errorpermissionmessage' => session('permissionerror')]);
+                return response()->json(['errorpermissionmessage' => session('permissionerror')], 403);
 
             }
 
@@ -106,12 +118,12 @@ class CaseController extends Controller
 
                             $fileExtension = strtolower(pathinfo($data->file_name, PATHINFO_EXTENSION));
 
-                            $fileUrl = asset('cases_file/' . $data->file_name);
+                            $fileUrl = $data->file_name;
 
                             $fileName[] = $fileUrl;
 
                             if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                                $imageName[] = asset('cases_file/' . $data->file_name);
+                                $imageName[] = $data->file_name;
                             } elseif ($fileExtension == 'pdf') {
                                 $imageName[] = asset('pdf-icon.png');
                             } elseif (in_array($fileExtension, ['doc', 'docx'])) {
@@ -200,6 +212,8 @@ class CaseController extends Controller
 
 
 
+
+
     public function lawyerAssign(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -215,11 +229,11 @@ class CaseController extends Controller
             ], 422);
         }
 
-        // Divide the cases into smaller batches (e.g., chunks of 100)
+
         $cases = collect($request->id);
         $lawyerId = $request->lawyerId;
 
-        // Create a batch of jobs
+
 
         $cases->chunk(100)->map(function ($chunkedCases) use ($lawyerId) {
 
@@ -264,9 +278,9 @@ class CaseController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'id' => 'required|array|min:1', // Ensure 'id' is an array with at least 1 element
-            'id.*' => 'required|exists:cases,id', // Ensure each element of 'id' exists in 'cases' table
-            // Validate 'lawyerId' as normal
+            'id' => 'required|array|min:1',
+            'id.*' => 'required|exists:cases,id',
+
 
         ]);
 
@@ -297,6 +311,38 @@ class CaseController extends Controller
 
 
     }
+
+
+
+
+
+    public function caseFieldCustomerProfileDetailSave(Request $request)
+    {
+        $rules = $this->caseService->getProfileValidationRules();
+        $rules['customer_id'] = 'required|integer|exists:customers,id';
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->caseService->handleValidationFailure($validator);
+        }
+
+        try {
+            $customerProfileDetail = $this->caseService->saveCustomerProfileDetail($request->all());
+
+            return $this->caseService->handleSuccessResponse('Customer profile saved successfully.', $customerProfileDetail->id);
+        } catch (\Exception $e) {
+            return $this->caseService->handleErrorResponse($e->getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 }

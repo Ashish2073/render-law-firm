@@ -133,10 +133,8 @@ Route::group([
     Route::post('/sendNotificaation', [PushNotificationController::class, 'sendNotificationAllUsers'])->name('notification.save');
 
     Route::get('/customer-list', [CustomerController::class, 'customerList'])->name('customer.detail')->middleware('permission:customers_view');
-
-    Route::post('/customer-save', [CustomerController::class, 'customerSave'])->name('customer.save');
-
     Route::get('/customer-paginate-list', [CustomerController::class, 'customerPaginateList'])->name('customer-list');
+    Route::post('/customer-save', [CustomerController::class, 'customerSave'])->name('customer.save');
 
     Route::post('/customer-status-update', [CustomerController::class, 'customerStatusUpdate'])->name('customer.statusupdate')->middleware('permission:customer_status_edit');
 
@@ -212,6 +210,7 @@ Route::group([
 
     Route::post('lawyer/cases-dissiociate', [CaseController::class, 'lawyerDissiociate'])->name('lawyer-dissiociate-assign');
 
+    Route::post('/case-filed-customer-detail-save', [CaseController::class, 'caseFieldCustomerProfileDetailSave'])->name('customer-case-user-bascic-detail');
     Route::get('case/{id}/message', [CaseMessageController::class, 'index'])->name('case-message');
 
     Route::get('case/message/all/{id}', [CaseMessageController::class, 'showMessages'])->name('messages-all');

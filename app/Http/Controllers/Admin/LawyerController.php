@@ -16,10 +16,12 @@ use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\LawyerReview;
+use App\Repositories\LawyerRepository;
 use App\Mail\LawyerCredentialMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use App\Repositories\ProficienceRepository;
 
 
 use Illuminate\Support\Facades\View;
@@ -27,6 +29,18 @@ use Carbon\Carbon;
 
 class LawyerController extends Controller
 {
+
+
+    protected $lawyerRepository;
+    protected $proficienceRepository;
+
+    public function __construct(LawyerRepository $lawyerRepository, ProficienceRepository $proficienceRepository)
+    {
+        // Inject the CustomerRepository
+
+        $this->lawyerRepository = $lawyerRepository;
+        $this->proficienceRepository = $proficienceRepository;
+    }
 
 
     public function registration(Request $request)
@@ -179,11 +193,9 @@ class LawyerController extends Controller
                 ->addIndexColumn()
 
                 ->addColumn('lawyer_image', function ($row) {
-                    if (isset($row->profile_image)) {
-                        $url = asset("lawyer/images/{$row->profile_image}");
-                    } else {
-                        $url = asset("customer_image/defaultcustomer.jpg");
-                    }
+
+                    $url = $row->profile_image;
+
 
 
                     $customerimg = "<div class='position-relative d-inline-block'onmouseover='onMouseOveractionOnImage($row->id)' onmouseout='onMouseOutactionOnImage($row->id)' style='margin: 30px 0px;'>
@@ -1149,37 +1161,18 @@ class LawyerController extends Controller
 
 
 
+
+
     public function lawyerlist(Request $request)
     {
-        $search = $request->input('search');
-        $page = $request->input('page', 1);
+        return $this->lawyerRepository->selectOptionDatalist($request);
 
-        $query = Lawyer::query();
+    }
 
-        if ($search) {
-            $query->where('name', 'LIKE', '%' . $search . '%');
-        }
+    public function proficienceList(Request $request)
+    {
+        return $this->proficienceRepository->selectOptionDatalist($request);
 
-        $lawyers = $query->paginate(10, ['*'], 'page', $page);
-
-        // Map through the lawyers and add the profile image URL
-        $lawyersData = $lawyers->map(function ($lawyer) {
-            $profileUrl = isset($lawyer->profile_image) && $lawyer->profile_image
-                ? asset("lawyer/images/{$lawyer->profile_image}")
-                : asset("customer_image/defaultcustomer.jpg");
-
-            return [
-                'id' => $lawyer->id,
-                'name' => $lawyer->name,
-                'profile_url' => $profileUrl,
-                // Add other fields if needed
-            ];
-        });
-
-        return response()->json([
-            'lawyers' => $lawyersData,
-            'hasMore' => $lawyers->hasMorePages()
-        ]);
     }
 
 
