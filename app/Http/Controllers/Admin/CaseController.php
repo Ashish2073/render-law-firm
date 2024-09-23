@@ -8,12 +8,15 @@ use App\Jobs\AssignedLawyerForCasesNotification;
 use App\Models\Customer;
 use App\Models\Plaintiff;
 use App\Models\Lawyer;
+use Google\Service\CloudDataplex\GoogleCloudDataplexV1EntityCompatibilityStatusCompatibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use App\Services\CaseService;
+use App\Repositories\ProficienceRepository;
+use Illuminate\Support\Facades\DB;
 
 
 class CaseController extends Controller
@@ -118,12 +121,12 @@ class CaseController extends Controller
 
                             $fileExtension = strtolower(pathinfo($data->file_name, PATHINFO_EXTENSION));
 
-                            $fileUrl = $data->file_name;
+                            $fileUrl = asset('cases_file/' . $data->file_name);
 
                             $fileName[] = $fileUrl;
 
                             if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                                $imageName[] = $data->file_name;
+                                $imageName[] = asset('cases_file/' . $data->file_name);
                             } elseif ($fileExtension == 'pdf') {
                                 $imageName[] = asset('pdf-icon.png');
                             } elseif (in_array($fileExtension, ['doc', 'docx'])) {
@@ -318,20 +321,70 @@ class CaseController extends Controller
 
     public function caseFieldCustomerProfileDetailSave(Request $request)
     {
+
+        DB::beginTransaction();
         $rules = $this->caseService->getProfileValidationRules();
+        $caseDetailsRules = $this->caseService->getCaseValidationRules();
         $rules['customer_id'] = 'required|integer|exists:customers,id';
 
         $validator = Validator::make($request->all(), $rules);
 
+        $validatorCaseDetail = Validator::make($request->all(), $caseDetailsRules);
+
+        $customerCaseDetialError = [];
+
+
         if ($validator->fails()) {
-            return $this->caseService->handleValidationFailure($validator);
+
+            $customerCaseDetialError['step1'] = 1;
+            $customerCaseDetialError['error1'] = $this->caseService->handleValidationFailure($validator);
         }
 
-        try {
-            $customerProfileDetail = $this->caseService->saveCustomerProfileDetail($request->all());
 
+        if ($validatorCaseDetail->fails()) {
+            $customerCaseDetialError['step2'] = 2;
+            $customerCaseDetialError['error2'] = $this->caseService->handleValidationFailure($validatorCaseDetail);
+
+
+
+
+        }
+
+
+
+
+        if (!empty($customerCaseDetialError)) {
+            return response()->json([
+                'error' => $customerCaseDetialError
+            ], 422);
+        }
+
+
+
+        try {
+
+
+
+            $customerProfileDetail = $this->caseService->saveCustomerProfileDetail($request->all());
+            if ($customerProfileDetail) {
+                $data = $request->all();
+                $data['case_user_id'] = $customerProfileDetail->id;
+
+                $customerCase = $this->caseService->saveCaseDetail($data);
+
+                if ($request->hasFile('case_file')) {
+                    $this->caseService->saveCaseFiles($customerCase->id, $request->file('case_file'));
+                }
+
+            }
+
+
+            DB::commit();
             return $this->caseService->handleSuccessResponse('Customer profile saved successfully.', $customerProfileDetail->id);
+
+
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->caseService->handleErrorResponse($e->getMessage());
         }
     }
@@ -339,6 +392,10 @@ class CaseController extends Controller
 
 
 
+    public function proficienceList(Request $request)
+    {
+        return $this->proficienceRepository->selectOptionDatalist($request);
+    }
 
 
 

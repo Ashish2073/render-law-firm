@@ -158,7 +158,6 @@ class CaseService
             'case_type' => 'required|exists:proficiencies,id',
             'case_file.*' => 'mimes:jpg,jpeg,png,gif,pdf,svg,doc,docx|max:6048',
             'customer_id' => 'required|exists:customers,id',
-            'case_user_id' => 'required|exists:case_users,id',
             'preferred_attorney_id' => 'required|exists:lawyers,id',
         ];
     }

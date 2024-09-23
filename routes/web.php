@@ -208,6 +208,7 @@ Route::group([
     Route::get('cuatomer/cases', [CaseController::class, 'index'])->name('customer-cases')->middleware('permission:cases_view');
     Route::post('lawyer/cases-assign', [CaseController::class, 'lawyerAssign'])->name('lawyer-cases-assign');
 
+    Route::get('/proficience-list', [CaseController::class, 'proficienceList'])->name('proficience.list');
     Route::post('lawyer/cases-dissiociate', [CaseController::class, 'lawyerDissiociate'])->name('lawyer-dissiociate-assign');
 
     Route::post('/case-filed-customer-detail-save', [CaseController::class, 'caseFieldCustomerProfileDetailSave'])->name('customer-case-user-bascic-detail');

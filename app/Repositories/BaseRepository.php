@@ -145,9 +145,10 @@ class BaseRepository implements RepositoryInterface
             $profileUrl = $item->profile_image ?? "";
 
 
+
             return [
                 'id' => $item->id,
-                'name' => $item->name,
+                'name' => $item->name ?? $item->proficience_name,
                 'profile_url' => $profileUrl,
 
             ];

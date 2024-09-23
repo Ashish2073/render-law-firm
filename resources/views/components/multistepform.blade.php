@@ -315,21 +315,44 @@
 
                                                         <div class="mb-3">
                                                             <label for="fullName" class="form-label">Title</label>
-                                                            <input type="text" class="form-control" id="fullName"
-                                                                placeholder="Enter your name">
+                                                            <input type="text" name="title" class="form-control"
+                                                                id="title" placeholder="Enter your name">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="case_type" class="form-label">Case Type
-                                                            </label>
-                                                            <input type="email" class="form-control" id="case_type"
-                                                                placeholder="Enter your email">
+                                                            <div for="preferdAttroneySelect" class="form-label">Case
+                                                                Type</div>
+                                                            <select class="form-select" id="caseTypeSelect"
+                                                                name="case_type" style="width:100%">
+                                                                <option value=""></option>
+
+
+                                                            </select>
+
                                                         </div>
+
+                                                        <div class="mb-3">
+                                                            <div for="urgencySelect" class="form-label">Urgency Label
+                                                            </div>
+                                                            <select class="form-select" id="urgencySelect"
+                                                                name="case_urgency_level" style="width:100%">
+                                                                <option value="1">Emergency</option>
+                                                                <option value="2">Medium</option>
+                                                                <option value="3">Common Scenario</option>
+                                                                <option value="4">Running</option>
+
+
+                                                            </select>
+
+                                                        </div>
+
+
+
                                                         <div class="mb-3">
                                                             <div for="preferdAttroneySelect" class="form-label">
                                                                 Preferd
                                                                 Attroney</div>
                                                             <select class="form-select" id="preferdAttroneySelect"
-                                                                name="preferd_attroney_id" style="width:100%">
+                                                                name="preferred_attorney_id" style="width:100%">
                                                                 <option value="">Select Lawyer</option>
 
 
@@ -348,8 +371,8 @@
                                                                             Attach File</span></button>
                                                                     <span class="btcd-f-title">No File Chosen</span>
                                                                     <small class="f-max"> (Max 2 MB)</small>
-                                                                    <input multiple type="file"
-                                                                        name="casedocument[]" id="">
+                                                                    <input multiple type="file" name="case_file[]"
+                                                                        id="">
                                                                 </div>
                                                                 <div class="btcd-files">
                                                                 </div>
@@ -364,7 +387,8 @@
                                                         <div class="mb-3">
                                                             <label for="details" class="form-label">Requires Details
                                                                 details...</label>
-                                                            <textarea class="form-control" id="details" rows="3" placeholder="Enter more details"></textarea>
+                                                            <textarea class="form-control" id="details" name="requirement_details" rows="3"
+                                                                placeholder="Enter more details"></textarea>
                                                         </div>
                                         </form>
                                         <div class="col-12 d-flex justify-content-center">

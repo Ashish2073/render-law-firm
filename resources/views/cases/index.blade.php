@@ -81,11 +81,11 @@
 
 
         /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        col[data-dt-column="2"] {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            width: 302.453px !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    col[data-dt-column="2"] {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        width: 302.453px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        } */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    } */
         col[data-dt-column="3"] {
             width: 250.453px !important;
         }
@@ -936,6 +936,7 @@
             cityList: "{{ route('admin.city.list') }}",
             customerList: "{{ route('admin.customer-list') }}",
             lawyerList: "{{ route('admin.lawyer.list') }}",
+            proficienceList: "{{ route('admin.proficience.list') }}",
         };
 
 
@@ -1005,6 +1006,14 @@
             return country.text || country.id;
         }
 
+        function formatProficience(proficience) {
+            return proficience.text ? `<div class="country-result">${proficience.text}</div>` : proficience.text;
+        }
+
+        function formatProficienceSelection(proficience) {
+            return proficience.text || proficience.id;
+        }
+
         function formatState(state) {
             return state.text ? `<div class="state-result">${state.text}</div>` : state.text;
         }
@@ -1063,6 +1072,9 @@
 
             initializeSelect2('#preferdAttroneySelect', routes.lawyerList, null, 'Select a prefred lawyer', formatLawyer,
                 formatLawyerSelection);
+
+            initializeSelect2('#caseTypeSelect', routes.proficienceList, null, 'Select a case type', formatProficience,
+                formatProficienceSelection);
 
             // $('#countrySelect').on('change', function() {
             //     var countryId = $(this).val();
