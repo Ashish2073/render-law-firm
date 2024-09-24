@@ -8,7 +8,7 @@ use App\Jobs\AssignedLawyerForCasesNotification;
 use App\Models\Customer;
 use App\Models\Plaintiff;
 use App\Models\Lawyer;
-use Google\Service\CloudDataplex\GoogleCloudDataplexV1EntityCompatibilityStatusCompatibility;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +86,18 @@ class CaseController extends Controller
                     return $customer;
                 })
 
+                ->addColumn('case_status', function ($row) {
+
+
+                    $case_status = view('components.casestatus')->render();
+
+                    return $case_status;
+                })
+
+
+
+
+
                 ->addColumn('lawyer', function ($row) {
                     if ($row->lawyer_name != 'Not Assigned') {
                         if (isset($row->lawyer_profile_image)) {
@@ -121,12 +133,12 @@ class CaseController extends Controller
 
                             $fileExtension = strtolower(pathinfo($data->file_name, PATHINFO_EXTENSION));
 
-                            $fileUrl = asset('cases_file/' . $data->file_name);
+                            $fileUrl = $data->file_name;
 
                             $fileName[] = $fileUrl;
 
                             if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                                $imageName[] = asset('cases_file/' . $data->file_name);
+                                $imageName[] = $data->file_name;
                             } elseif ($fileExtension == 'pdf') {
                                 $imageName[] = asset('pdf-icon.png');
                             } elseif (in_array($fileExtension, ['doc', 'docx'])) {
@@ -189,7 +201,7 @@ class CaseController extends Controller
                 })
 
 
-                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument'])
+                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument', 'case_status'])
 
                 ->filterColumn('customer', function ($query, $keyword) {
 
@@ -324,40 +336,29 @@ class CaseController extends Controller
 
         DB::beginTransaction();
         $rules = $this->caseService->getProfileValidationRules();
-        $caseDetailsRules = $this->caseService->getCaseValidationRules();
-        $rules['customer_id'] = 'required|integer|exists:customers,id';
 
         $validator = Validator::make($request->all(), $rules);
 
+        $caseDetailsRules = $this->caseService->getCaseValidationRules();
         $validatorCaseDetail = Validator::make($request->all(), $caseDetailsRules);
 
         $customerCaseDetialError = [];
 
 
-        if ($validator->fails()) {
+        if ($validator->fails() || $validatorCaseDetail->fails()) {
 
             $customerCaseDetialError['step1'] = 1;
             $customerCaseDetialError['error1'] = $this->caseService->handleValidationFailure($validator);
-        }
-
-
-        if ($validatorCaseDetail->fails()) {
             $customerCaseDetialError['step2'] = 2;
             $customerCaseDetialError['error2'] = $this->caseService->handleValidationFailure($validatorCaseDetail);
-
-
-
-
+            return response()->json(
+                $customerCaseDetialError
+                ,
+                422
+            );
         }
 
 
-
-
-        if (!empty($customerCaseDetialError)) {
-            return response()->json([
-                'error' => $customerCaseDetialError
-            ], 422);
-        }
 
 
 
@@ -367,8 +368,13 @@ class CaseController extends Controller
 
             $customerProfileDetail = $this->caseService->saveCustomerProfileDetail($request->all());
             if ($customerProfileDetail) {
+
                 $data = $request->all();
                 $data['case_user_id'] = $customerProfileDetail->id;
+
+
+
+
 
                 $customerCase = $this->caseService->saveCaseDetail($data);
 
