@@ -8,7 +8,7 @@ use App\Jobs\AssignedLawyerForCasesNotification;
 use App\Models\Customer;
 use App\Models\Plaintiff;
 use App\Models\Lawyer;
-
+use App\Models\CaseHearingOverview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -87,11 +87,11 @@ class CaseController extends Controller
                 })
 
                 ->addColumn('case_status', function ($row) {
+                  
 
+                    $case_status = view('components.casestatus')->with('case_id',$row->id)->render();
 
-                    $case_status = view('components.casestatus')->render();
-
-                    return $case_status;
+                    return $case_status ;
                 })
 
 
@@ -201,7 +201,7 @@ class CaseController extends Controller
                 })
 
 
-                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument', 'case_status'])
+                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument','case_status'])
 
                 ->filterColumn('customer', function ($query, $keyword) {
 
@@ -345,7 +345,7 @@ class CaseController extends Controller
         $customerCaseDetialError = [];
 
 
-        if ($validator->fails() || $validatorCaseDetail->fails()) {
+        if ($validator->fails() ||$validatorCaseDetail->fails()) {
 
             $customerCaseDetialError['step1'] = 1;
             $customerCaseDetialError['error1'] = $this->caseService->handleValidationFailure($validator);
@@ -358,9 +358,9 @@ class CaseController extends Controller
             );
         }
 
+    
 
-
-
+       
 
         try {
 
@@ -404,6 +404,10 @@ class CaseController extends Controller
     }
 
 
+
+    public function getCaseHearingOverviewList(Request $request){
+
+    }
 
 
 

@@ -1,9 +1,8 @@
-
 <div class="chat {{ $class }}">
 
     <div class='chat-avatar'>
-        <div class="avatar bg-light-primary">
-            <div class="avatar-content">{{$name[0]}}</div>
+        <div class="avatar bg-light-primary d-flex justify-content-center pt-3">
+            <div class="avatar-content">{{ $name[0] }}</div>
         </div>
     </div>
     <div class='chat-body'>
@@ -35,7 +34,7 @@
 
                 <span class="d-block " style="font-size: 11px;">
                     {{ $name }} {{ '(' }} {{ $overallrole ?? 'N/A' }} {{ ')' }}
-                   
+
                 </span>
 
 

@@ -74,18 +74,7 @@
             color: white;
         }
 
-        .card-box {
-            display: none;
-            position: absolute;
-            top: 100px;
-            /* Adjust as needed */
-            left: 50px;
-            /* Adjust as needed */
-            padding: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+
 
 
         /* Custom Tooltip Style */
@@ -163,11 +152,11 @@
 
 
         /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    col[data-dt-column="2"] {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        width: 302.453px !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            col[data-dt-column="2"] {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 302.453px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    } */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            } */
         col[data-dt-column="3"] {
             width: 250.453px !important;
         }
@@ -346,6 +335,102 @@
 
         .dropdown-toggle::after {
             display: none
+        }
+    </style>
+
+    <style>
+        .status-case-multi-steps {
+            display: flex;
+            counter-reset: stepNum;
+            justify-content: space-between;
+            width: 100%;
+            margin: 0 auto;
+            font-size: 12px;
+            /* Smaller font for compact design */
+            position: relative;
+        }
+
+        .status-case-multi-steps>li {
+            position: relative;
+            list-style-type: none;
+            text-align: center;
+            color: #027f00;
+            width: 4.5%;
+            z-index: 1;
+            /* Adjust for 8 steps */
+        }
+
+        .status-case-multi-steps>li:before {
+            content: counter(stepNum);
+            counter-increment: stepNum;
+            display: block;
+            margin: 0 auto 4px;
+            background-color: #027f00;
+            width: 24px;
+            /* Smaller circle */
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            font-weight: bold;
+            border-width: 2px;
+            border-style: solid;
+            border-color: #027f00;
+            border-radius: 50%;
+            color: white;
+        }
+
+        .status-case-multi-steps>li.is-complete:before {
+            content: "✓";
+            background-color: #027f00;
+            color: rgb(255, 255, 255);
+        }
+
+        .status-case-multi-steps>li:last-child:after {
+            display: none;
+        }
+
+        .status-case-multi-steps>li.is-active:before {
+            background-color: #027f00;
+            border-color: #027f00;
+            color: rgb(255, 255, 255);
+            animation: pulse 2s infinite;
+        }
+
+        .status-case-multi-steps>li.is-active~li {
+            color: #808080;
+        }
+
+        .status-case-multi-steps>li.is-active~li:before {
+            background-color: #e1e1e1;
+            border-color: #e1e1e1;
+            color: #808080;
+        }
+
+        .status-case-progress-progress-container {
+            position: absolute;
+            top: 11px;
+            /* left: 11px; */
+            width: 93%;
+            height: 6px;
+            background-color: white;
+            z-index: 0;
+        }
+
+        .status-case-progress-bar {
+            background-color: #027f00;
+            height: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 #027f0070;
+            }
+
+            100% {
+                box-shadow: 0 0 0 10px #027f0000;
+            }
         }
     </style>
 
@@ -940,6 +1025,36 @@
                         name: 'case_status',
                         searchable: true,
                         searchable: false,
+                        createdCell: function(td, cellData, rowData, row, col) {
+                            const totalSteps = 8;
+
+                            function next(containerId, stepNumber) {
+                                const container = document.getElementById(containerId);
+                                const steps = container.querySelectorAll('.status-case-multi-steps > li');
+                                const progressBar = container.querySelector('.status-case-progress-bar');
+
+                                if (stepNumber <= totalSteps && stepNumber > 0) {
+                                    // Complete all steps up to the given stepNumber
+                                    for (let i = 0; i < stepNumber; i++) {
+                                        steps[i].classList.add("is-complete");
+                                        steps[i].classList.remove("is-active");
+                                    }
+
+                                    // Activate the current step
+                                    steps[stepNumber - 1].classList.add("is-active");
+
+                                    // Update the progress bar width
+                                    let progressPercentage = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+                                    progressBar.style.width = progressPercentage + "%";
+                                } else {
+                                    alert('Invalid step number!');
+                                }
+                            }
+
+                            setTimeout(() => {
+                                next(`first_step${rowData.id}`, rowData.status), 101
+                            });
+                        }
                     },
 
                     {
@@ -984,7 +1099,58 @@
 
                 },
                 'drawCallback': function(row, data, dataIndex) {
-                    upgradeProgressBar(2);
+                    // upgradeProgressBar(2);
+
+                    // setTimeout(()=>{
+                    //     console.log(data)},500);
+
+
+
+
+
+
+
+
+                    // setTimeout(() => {
+
+                    //     const containers = document.querySelectorAll('.container-fluid');
+
+
+                    //     containers.forEach(container => {
+                    //         const steps = container.querySelectorAll(
+                    //             '.status-case-multi-steps > li');
+                    //         const progressBar = container.querySelector(
+                    //             '.status-case-progress-bar');
+
+                    //         console.log(progressBar);
+
+                    //         let activeStep = 0;
+
+
+                    //         steps.forEach((step, index) => {
+                    //             if (step.classList.contains('is-active')) {
+                    //                 activeStep = index + 1;
+                    //                 // Complete all previous steps
+                    //                 for (let i = 0; i < activeStep - 1; i++) {
+                    //                     steps[i].classList.add('is-complete');
+                    //                     steps[i].classList.remove('is-active');
+                    //                 }
+                    //             }
+                    //         });
+
+
+                    //         let progressPercentage = ((activeStep - 1) / (totalSteps - 1)) *
+                    //         100;
+                    //         progressBar.style.width = progressPercentage + '%';
+                    //     });
+                    // }, 101);
+
+
+
+
+
+
+
 
                     $('.case-checkbox').each(function() {
                         var rowId = $(this).val();
@@ -1010,7 +1176,6 @@
                         }, 101);
                     });
                 },
-
 
 
 
@@ -1862,5 +2027,6 @@
 
         }
     </script>
+
 
 @endsection
