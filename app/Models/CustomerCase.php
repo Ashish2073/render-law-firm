@@ -30,6 +30,12 @@ class CustomerCase extends Model
     }
 
 
+    public function getStepStatusAttribute($value)
+    {
+        return $value ? json_decode($value) : 'N/A';
+    }
+
+
 
 
 

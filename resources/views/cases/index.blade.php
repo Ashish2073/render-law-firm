@@ -152,11 +152,11 @@
 
 
         /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            col[data-dt-column="2"] {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 302.453px !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                col[data-dt-column="2"] {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    width: 302.453px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            } */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                } */
         col[data-dt-column="3"] {
             width: 250.453px !important;
         }
@@ -350,78 +350,17 @@
             position: relative;
         }
 
-        .status-case-multi-steps>li {
-            position: relative;
-            list-style-type: none;
-            text-align: center;
-            color: #027f00;
-            width: 4.5%;
-            z-index: 1;
-            /* Adjust for 8 steps */
-        }
 
-        .status-case-multi-steps>li:before {
-            content: counter(stepNum);
-            counter-increment: stepNum;
-            display: block;
-            margin: 0 auto 4px;
-            background-color: #027f00;
-            width: 24px;
-            /* Smaller circle */
-            height: 24px;
-            line-height: 24px;
-            text-align: center;
-            font-weight: bold;
-            border-width: 2px;
-            border-style: solid;
-            border-color: #027f00;
-            border-radius: 50%;
-            color: white;
-        }
 
-        .status-case-multi-steps>li.is-complete:before {
-            content: "✓";
-            background-color: #027f00;
-            color: rgb(255, 255, 255);
-        }
 
-        .status-case-multi-steps>li:last-child:after {
-            display: none;
-        }
 
-        .status-case-multi-steps>li.is-active:before {
-            background-color: #027f00;
-            border-color: #027f00;
-            color: rgb(255, 255, 255);
-            animation: pulse 2s infinite;
-        }
 
-        .status-case-multi-steps>li.is-active~li {
-            color: #808080;
-        }
 
-        .status-case-multi-steps>li.is-active~li:before {
-            background-color: #e1e1e1;
-            border-color: #e1e1e1;
-            color: #808080;
-        }
 
-        .status-case-progress-progress-container {
-            position: absolute;
-            top: 11px;
-            /* left: 11px; */
-            width: 93%;
-            height: 6px;
-            background-color: white;
-            z-index: 0;
-        }
 
-        .status-case-progress-bar {
-            background-color: #027f00;
-            height: 5px;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
+
+
+
 
         @keyframes pulse {
             0% {
@@ -431,6 +370,164 @@
             100% {
                 box-shadow: 0 0 0 10px #027f0000;
             }
+        }
+    </style>
+    <style>
+        /* progress bar  */
+        .multi-step-bar {
+            overflow: hidden;
+            counter-reset: step;
+            width: 315px;
+        }
+
+        .status-step {
+            text-align: center;
+            list-style-type: none;
+            color: #363636;
+            text-transform: CAPITALIZE;
+            width: 16.65%;
+            float: left;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .status-step:before {
+            content: counter(step);
+            counter-increment: step;
+            width: 30px;
+            line-height: 30px;
+            display: block;
+            font-size: 12px;
+            background: #e6e6e6;
+            border-radius: 50%;
+            margin: 0 auto 5px auto;
+            -webkit-box-shadow: 0 6px 20px 0 rgba(69, 90, 100, 0.15);
+            -moz-box-shadow: 0 6px 20px 0 rgba(69, 90, 100, 0.15);
+            box-shadow: 0 6px 20px 0 rgba(69, 90, 100, 0.15);
+        }
+
+        .status-step:after {
+            content: '';
+            width: 25px;
+            height: 3px;
+            background: #007bff;
+            position: absolute;
+            left: -26%;
+            top: 15px;
+            z-index: 0;
+        }
+
+        .status-step:first-child:after {
+            content: none;
+        }
+
+        .status-step.active:before {
+            background: green;
+            color: white;
+        }
+
+        /* Custom Tooltip Style */
+        .orange-btn {
+            background: #F77D24;
+            display: inline-block;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: Sans-serif;
+            font-size: 10px;
+            padding-left: 15px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .orange-btn:hover {
+            color: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-case-multi-steps {
+            display: flex;
+            counter-reset: stepNum;
+            justify-content: space-between;
+            width: 100%;
+            margin: 0 auto;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .status-case-multi-steps>li {
+            position: relative;
+            list-style-type: none;
+            text-align: center;
+            width: 4.5%;
+            z-index: 1;
+        }
+
+        .status-case-multi-steps>li:before {
+            content: counter(stepNum);
+            counter-increment: stepNum;
+            display: block;
+            margin: 0 auto 4px;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            font-weight: bold;
+            border-width: 2px;
+            border-style: solid;
+            border-radius: 50%;
+            color: white;
+            background-color: black;
+        }
+
+        .status-case-multi-steps>li.is-complete:before {
+            background-color: green;
+            color: white;
+            content: "✓";
+        }
+
+        .status-case-multi-steps>li.is-rejected:before {
+            background-color: red;
+            color: white;
+            content: "✕";
+        }
+
+        .status-case-multi-steps>li.is-pending:before {
+            background-color: yellow;
+            color: black;
+            content: "!";
+        }
+
+        .status-case-progress-progress-container {
+            position: absolute;
+            top: 11px;
+            width: 93%;
+            height: 6px;
+            background-color: rgba(6, 6, 6, 0.788);
+            z-index: 0;
+        }
+
+        .status-case-progress-bar {
+            background-color: #007bff;
+            height: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+    <style>
+        .text-green {
+            color: green;
+        }
+
+        .text-red {
+            color: red;
+        }
+
+        .text-yellow {
+            color: #878745;
+        }
+
+        .text-gray {
+            color: gray;
         }
     </style>
 
@@ -1026,35 +1123,71 @@
                         searchable: true,
                         searchable: false,
                         createdCell: function(td, cellData, rowData, row, col) {
+
+                            function getValuesUpToKey(data, key) {
+                                const result = [];
+
+                                // Loop through the keys in the object
+                                for (let i = 1; i <= key; i++) {
+                                    if (data[i] !== undefined) {
+                                        // Convert the value to a number before pushing to the result
+                                        result.push(Number(data[i]));
+                                    }
+                                }
+
+                                return result;
+                            }
+
+
+
+
+
+
+
+
                             const totalSteps = 8;
 
-                            function next(containerId, stepNumber) {
+                            // Updated function to handle all statuses up to the current step
+                            function next(containerId, stepNumber, statusArray) {
                                 const container = document.getElementById(containerId);
                                 const steps = container.querySelectorAll('.status-case-multi-steps > li');
                                 const progressBar = container.querySelector('.status-case-progress-bar');
 
-                                if (stepNumber <= totalSteps && stepNumber > 0) {
-                                    // Complete all steps up to the given stepNumber
-                                    for (let i = 0; i < stepNumber; i++) {
-                                        steps[i].classList.add("is-complete");
-                                        steps[i].classList.remove("is-active");
-                                    }
-
-                                    // Activate the current step
-                                    steps[stepNumber - 1].classList.add("is-active");
-
-                                    // Update the progress bar width
-                                    let progressPercentage = ((stepNumber - 1) / (totalSteps - 1)) * 100;
-                                    progressBar.style.width = progressPercentage + "%";
-                                } else {
-                                    alert('Invalid step number!');
+                                // Validate the status array length matches stepNumber
+                                if (statusArray.length !== stepNumber) {
+                                    console.error(
+                                        'Status array length must match the current step number.');
+                                    return;
                                 }
+
+                                // Loop through the steps and apply status
+                                for (let i = 0; i < stepNumber; i++) {
+                                    steps[i].classList.remove("is-complete", "is-rejected", "is-pending");
+
+                                    if (statusArray[i] === 1) {
+                                        steps[i].classList.add("is-complete");
+                                    } else if (statusArray[i] === 2) {
+                                        steps[i].classList.add("is-rejected");
+                                    } else if (statusArray[i] === 3) {
+                                        steps[i].classList.add("is-pending");
+                                    }
+                                }
+
+                                // Update the progress bar width
+                                let progressPercentage = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+                                progressBar.style.width = progressPercentage + "%";
                             }
 
+                            // Test the next function with a step and array of step statuses
                             setTimeout(() => {
-                                next(`first_step${rowData.id}`, rowData.status), 101
-                            });
+                                console.log(rowData.step_status);
+                                next(`first_step${rowData.id}`, Number(rowData.status),
+                                    getValuesUpToKey(rowData.step_status, Number(rowData
+                                        .status))
+                                ); // step 4, previous statuses [accepted, rejected, rejected, rejected]
+                            }, 101);
                         }
+
                     },
 
                     {
@@ -1419,7 +1552,8 @@
         };
 
 
-        function initializeSelect2(selector, url, parentId = null, placeholder, formatResult, formatSelection, serchTerm =
+        function initializeSelect2(selector, url, parentId = null, placeholder, formatResult, formatSelection,
+            serchTerm =
             '') {
 
             $(`${selector}`).val(null).trigger("change");
@@ -1561,7 +1695,8 @@
             initializeSelect2('#stateSelect', routes.stateList, 233, 'Select a State', formatState,
                 formatStateSelection);
 
-            initializeSelect2('#preferdAttroneySelect', routes.lawyerList, null, 'Select a prefred lawyer', formatLawyer,
+            initializeSelect2('#preferdAttroneySelect', routes.lawyerList, null, 'Select a prefred lawyer',
+                formatLawyer,
                 formatLawyerSelection);
 
             initializeSelect2('#caseTypeSelect', routes.proficienceList, null, 'Select a case type', formatProficience,

@@ -50,6 +50,9 @@ class CaseController extends Controller
                 ->select(
                     'cases.*',
                     \DB::raw("DATE_FORMAT(cases.created_at ,'%d/%m/%Y') AS created_date"),
+                    \DB::raw("DATE_FORMAT(cases.created_at, '%d%b%Y') AS rased_case_date"),
+                    \DB::raw("DATE_FORMAT(cases.created_at, '%h:%i%p') AS rased_case_time"),
+
                     \DB::raw("COALESCE(customers.name, 'N/A') AS customer_name"),
                     'customers.profile_image as customer_profile_image',
                     \DB::raw("COALESCE(lawyers.name, 'Not Assigned') AS lawyer_name"),
@@ -87,11 +90,11 @@ class CaseController extends Controller
                 })
 
                 ->addColumn('case_status', function ($row) {
-                  
 
-                    $case_status = view('components.casestatus')->with('case_id',$row->id)->render();
 
-                    return $case_status ;
+                    $case_status = view('components.casestatus', ['case_id' => $row->id, 'rased_case_date' => $row->rased_case_date, 'rased_case_time' => $row->rased_case_time, 'step_status' => $row->step_status], )->render();
+
+                    return $case_status;
                 })
 
 
@@ -201,7 +204,7 @@ class CaseController extends Controller
                 })
 
 
-                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument','case_status'])
+                ->rawColumns(['customercasechat', 'case_checkbox', 'customer', 'lawyer', 'casedocument', 'case_status'])
 
                 ->filterColumn('customer', function ($query, $keyword) {
 
@@ -345,7 +348,7 @@ class CaseController extends Controller
         $customerCaseDetialError = [];
 
 
-        if ($validator->fails() ||$validatorCaseDetail->fails()) {
+        if ($validator->fails() || $validatorCaseDetail->fails()) {
 
             $customerCaseDetialError['step1'] = 1;
             $customerCaseDetialError['error1'] = $this->caseService->handleValidationFailure($validator);
@@ -358,9 +361,9 @@ class CaseController extends Controller
             );
         }
 
-    
 
-       
+
+
 
         try {
 
@@ -405,7 +408,8 @@ class CaseController extends Controller
 
 
 
-    public function getCaseHearingOverviewList(Request $request){
+    public function getCaseHearingOverviewList(Request $request)
+    {
 
     }
 
